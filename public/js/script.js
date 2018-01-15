@@ -328,8 +328,8 @@ License: CC-BY-SA-4.0
           y = cell.y;
         }
         if (size) {
-          x = Math.max(0, (x - size / 2.0));
-          y = Math.max(0, (y - size / 2.0));
+          x = Math.min((win.width - size), Math.max(0, (x - size / 2.0)));
+          y = Math.min((win.height - size), Math.max(0, (y - size / 2.0)));
         }
         this.DOM.block.style.left = x + this.style.offset.x + 'px';
         this.DOM.block.style.top = y + this.style.offset.y + 'px';
@@ -366,18 +366,27 @@ License: CC-BY-SA-4.0
     }
   };
 
+  // window tracking
+  var win = {
+    width: window.innerWidth || window.clientWidth,
+    height: window.innerHeight || window.clientHeight,
+    refresh: function() {
+      this.width = window.innerWidth || window.clientWidth;
+      this.height = window.innerHeight || window.clientHeight;
+    }
+  };
+
   // random cache (used to store swap values)
   var cache = {};
 
   // event handlers
   function windowResize(event) {
-    var w = window.innerWidth || window.clientWidth;
-    var h = window.innerHeight || window.clientHeight;
+    win.refresh();
 
-    if (w < 500) {
+    if (win.width < 500) {
       grid.setCols(8);
     }
-    else if (w < 800) {
+    else if (win.width < 800) {
       grid.setCols(16);
     }
     else {
