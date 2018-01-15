@@ -1,4 +1,12 @@
+/* Technaturally.com/style/style.css
+
+Stylesheet for Technaturally.com
+
+License: CC-BY-SA-4.0
+*/
+
 body {
+	position: relative;
 	font-family: 'Lato', sans-serif;
 	letter-spacing: 1px;
 	color: #555;
@@ -44,8 +52,22 @@ a.special {
 		color: #FF9740;
 	}
 }
-
+#background {
+	position: fixed;
+	top: 0; right: 0; bottom: 0; left: 0;
+}
+#block {
+	position: absolute;
+	top: 420px;
+	left: 80%;
+	display: block;
+	width: 25px;
+	height: 25px;
+	border: 3px solid #333;
+	border-width: 3px 0 0 3px;
+}
 #main {
+	position: relative;
 	padding: 0 50px;
 
 	> header {
@@ -64,19 +86,25 @@ a.special {
 		}
 	}
 
-
-	section.content {
+	> section.content {
 		padding: 25px 0 10px;
+	}
 
-		p.contact {
+	> footer {
+		text-align: center;
+		padding: 25px 0 15px;
+		.slogan {
+			float: right;
+		}
+		.copyright {
+			float: left;
+		}
+	}
+}
+
+.content {
+	p.contact {
 			text-align: center;
 			font-size: 1.75em;
 		}
-	}
-
-
-	> footer {
-		padding: 25px 0 15px;
-		text-align: right;
-	}
 }
