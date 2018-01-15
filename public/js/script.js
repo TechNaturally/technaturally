@@ -60,7 +60,8 @@ License: CC-BY-SA-4.0
       size: undefined,
     },
     block: {
-      size: 25
+      size: 25,
+      snap: true
     }
   };
 
@@ -90,6 +91,15 @@ License: CC-BY-SA-4.0
       this.fixRows(rows, size, width);
       this.styleCols(size, height);
       this.styleRows(size, width);
+    },
+    getCell: function(x, y) {
+      var result = {};
+      var size = this.getSize();
+      result.col = Math.floor(x / size);
+      result.row = Math.floor(y / size);
+      result.x = (result.col + 0.5) * size;
+      result.y = (result.row + 0.5) * size;
+      return result;
     },
     setCols: function(cols) {
       this.config.size = undefined;
@@ -272,6 +282,11 @@ License: CC-BY-SA-4.0
     setPosition: function(x, y) {
       if (this.DOM.block) {
         var size = this.config.size;
+        if (this.config.snap) {
+          var cell = grid.getCell(x, y);
+          x = cell.x;
+          y = cell.y;
+        }
         if (size) {
           x = Math.max(0, (x - size / 2.0));
           y = Math.max(0, (y - size / 2.0));
@@ -291,21 +306,37 @@ License: CC-BY-SA-4.0
     }
   };
 
+  var mouse = {
+    x: 0,
+    y: 0,
+    setPosition: function(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+  };
+
   // event handlers
-  function windowResized(event) {
+  function windowResize(event) {
     var w = window.innerWidth || window.clientWidth;
     var h = window.innerHeight || window.clientHeight;
     
     grid.refresh();
     block.setSize(grid.getSize());
   }
-
-  function mouseMoved(event) {
-    block.setPosition(event.clientX, event.clientY);
+  function mouseMove(event) {
+    mouse.setPosition(event.clientX, event.clientY);
+    block.setPosition(mouse.x, mouse.y);
+  }
+  function keyDown(event) {
+    if (event.key == 's' || event.key == 'S') {
+      config.block.snap = !config.block.snap;
+      block.setPosition(mouse.x, mouse.y);
+    }
   }
 
-  window.addEventListener('resize', windowResized);
-  window.addEventListener('mousemove', mouseMoved);
+  window.addEventListener('resize', windowResize);
+  window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('keyup', keyDown);
   document.addEventListener('DOMContentLoaded', function(event) { 
     var body = getEl('body');
 
