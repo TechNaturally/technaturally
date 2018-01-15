@@ -798,10 +798,10 @@ License: CC-BY-SA-4.0
       blocks.setPosition(mouse.x, mouse.y);
     }
     else if (event.key == 'b') {
-      style.block.borderMode.nextMode();
+      style.block.boxSizeMode.nextMode();
     }
     else if (event.key == 'B') {
-      style.block.boxSizeMode.nextMode();
+      style.block.borderMode.nextMode();
     }
     else if (event.key == 'c' || event.key == 'C') {
       style.block.borderRadiusMode.nextMode();
