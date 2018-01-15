@@ -375,13 +375,13 @@ License: CC-BY-SA-4.0
     var h = window.innerHeight || window.clientHeight;
 
     if (w < 500) {
-      if (config.grid.cols != 16) {
-        cache['config.grid.cols'] = config.grid.cols;
-      }
-      config.grid.cols = 16;
+      grid.setCols(8);
+    }
+    else if (w < 800) {
+      grid.setCols(16);
     }
     else {
-      config.grid.cols = cache['config.grid.cols'];
+      grid.setCols(32);
     }
 
     grid.refresh();
