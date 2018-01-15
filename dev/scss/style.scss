@@ -129,3 +129,9 @@ footer {
 		}
 	}
 }
+
+@media only screen and (max-width: 399px) {
+	body {
+		font-size: 85%;
+	}
+}
