@@ -7,6 +7,9 @@ Date: 2018/01/14
 
 License: CC-BY-SA-4.0
 */
+* {
+  box-sizing: border-box; }
+
 body {
   cursor: crosshair;
   position: relative;
@@ -64,6 +67,8 @@ a.special:hover, a.special:active, a.special:focus {
   #main > footer {
     display: block;
     padding: 25px 20px 10px; }
+  #main > section {
+    min-height: 180px; }
 
 header {
   color: #666; }
@@ -74,7 +79,7 @@ header {
     max-width: 480px; }
   header .slogan {
     text-align: center;
-    margin-top: 18px; }
+    margin-top: 36px; }
 
 section p.contact {
   text-align: center;
