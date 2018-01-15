@@ -1,0 +1,13 @@
+{
+  "name": "Technaturally.com",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "4.12.3"
+  },
+  "author": "Pat Long",
+  "date": "2018/01/14",
+  "license": "CC-BY-SA-4.0"
+}

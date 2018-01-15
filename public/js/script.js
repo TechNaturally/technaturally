@@ -1,6 +1,6 @@
 /* Technaturally.com/js/script.js
 
-Javascript Grid Demo
+Javascript Grid Demo (with a floating block)
 
 Author: Pat Long
 Date: 2018/01/14
