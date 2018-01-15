@@ -47,7 +47,7 @@ a.special:hover, a.special:active, a.special:focus {
   left: 0; }
 
 #block {
-  position: absolute;
+  position: fixed;
   top: 420px;
   left: 80%;
   display: block;
