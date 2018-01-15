@@ -9,7 +9,7 @@ License: CC-BY-SA-4.0
 */
 
 (function(){
-  var LOOPSANITY = 9999;
+  var LOOPSANITY = 9999; // used to break gnarly while loops
 
   // shortcuts
   function getEl(selector) {
@@ -19,18 +19,21 @@ License: CC-BY-SA-4.0
     return document.querySelectorAll(selector);
   }
 
+  // some styles for the things
   var style = {
+    // border helpers ;)
     Border: {
       getBorder: function(border) {
         return (border.width+' '+border.style+' '+border.color);
       },
       getBorderWidth: function(border, matrix) {
-        return matrix.join(' ').replace(/1/g, border.width);
+        return matrix.join(' ').replace(/1/g, border.width).replace(/0/g, (border.thinWidth));
       }
     },
     grid: {
       border: {
         width: '1px',
+        thinWidth: 0,
         color: '#DDD',
         style: 'solid'
       },
@@ -41,8 +44,13 @@ License: CC-BY-SA-4.0
     block: {
       border: {
         width: '3px',
+        thinWidth: '2px',
         style: 'solid',
         color: '#AAA'
+      },
+      offset: {
+        x: 0,
+        y: 0
       },
       borders: [1, 0, 0, 1],
       getBorder: function() {
@@ -55,16 +63,19 @@ License: CC-BY-SA-4.0
   };
 
   var config = {
+    // optional preset number of cols or cell size
     grid: {
       cols: 32,
-      size: undefined,
+      size: undefined
     },
+    // cheeky stuff below updates the block size
     block: {
       size: 25,
       snap: true
     }
   };
 
+  // simple gridding
   var grid = {
     config: config.grid,
     style: style.grid,
@@ -262,6 +273,7 @@ License: CC-BY-SA-4.0
     }
   };
 
+  // cheeky floating block
   var block = {
     config: config.block,
     style: style.block,
@@ -319,8 +331,8 @@ License: CC-BY-SA-4.0
           x = Math.max(0, (x - size / 2.0));
           y = Math.max(0, (y - size / 2.0));
         }
-        this.DOM.block.style.left = x + 'px';
-        this.DOM.block.style.top = y + 'px';
+        this.DOM.block.style.left = x + this.style.offset.x + 'px';
+        this.DOM.block.style.top = y + this.style.offset.y + 'px';
       }
     },
     styleBlock: function(block) {
@@ -334,6 +346,7 @@ License: CC-BY-SA-4.0
     }
   };
 
+  // mouse tracking
   var mouse = {
     x: 0,
     y: 0,
@@ -372,21 +385,13 @@ License: CC-BY-SA-4.0
       block.setPosition(mouse.x, mouse.y);
     }
   }
-
   window.addEventListener('resize', windowResize);
   window.addEventListener('mousemove', mouseMove);
   window.addEventListener('keyup', keyDown);
   document.addEventListener('DOMContentLoaded', function(event) { 
-    var body = getEl('body');
-
     // initialize grid with a container
     grid.setGrid( getEl('#background') );
     block.setBlock( getEl('#block') );
     block.setSize(grid.getSize());
-
-    if (body && block.DOM.block) {
-      //body.style.cursor = 'none';
-    }
   });
-
 })();
