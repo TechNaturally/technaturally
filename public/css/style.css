@@ -1,0 +1,86 @@
+/* Technaturally.com/style/style.css
+
+Stylesheet for Technaturally.com
+
+Author: Pat Long
+Date: 2018/01/14
+
+License: CC-BY-SA-4.0
+*/
+body {
+  position: relative;
+  font-family: 'Lato', sans-serif;
+  letter-spacing: 1px;
+  color: #555; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Arima Madurai', sans-serif;
+  letter-spacing: 1px;
+  font-weight: bold;
+  font-style: italic; }
+
+h1 {
+  margin-bottom: 0.33em; }
+
+p {
+  margin-bottom: 1.25em;
+  padding-left: 10px; }
+
+blockquote {
+  font-family: 'Oregano', cursive; }
+
+a, a:link, a:visited {
+  color: #656637; }
+a:hover, a:active, a:focus {
+  color: #76A04D; }
+
+a.special, a.special:link, a.special:visited {
+  color: #E15E35; }
+a.special:hover, a.special:active, a.special:focus {
+  color: #FF9740; }
+
+#background {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0; }
+
+#block {
+  position: absolute;
+  top: 420px;
+  left: 80%;
+  display: block;
+  width: 25px;
+  height: 25px;
+  border: 3px solid #333;
+  border-width: 3px 0 0 3px; }
+
+#main {
+  position: relative;
+  padding: 0 50px; }
+  #main > header {
+    padding: 25px 0 10px;
+    color: #666; }
+    #main > header img.logo {
+      display: block;
+      width: 480px;
+      margin: 0 auto; }
+    #main > header .slogan {
+      text-align: right;
+      margin-top: 10px; }
+  #main > section.content {
+    padding: 25px 0 10px; }
+  #main > footer {
+    text-align: center;
+    padding: 25px 0 15px; }
+    #main > footer .slogan {
+      float: right; }
+    #main > footer .copyright {
+      float: left; }
+
+.content p.contact {
+  text-align: center;
+  font-size: 1.75em; }
+
+/*# sourceMappingURL=style.css.map */
