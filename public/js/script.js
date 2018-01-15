@@ -141,6 +141,7 @@ License: CC-BY-SA-4.0
       border: {
         width: '1px',
         thinWidth: 0,
+        allowSingle: false,
         color: '#DDD',
         style: 'solid'
       },
@@ -496,7 +497,7 @@ License: CC-BY-SA-4.0
         // special handling if no motion
       }
       else {
-        if (deltaX == 0) {
+        if (deltaX == 0 && _this.style.current.border.allowSingle) {
           _this.style.current.borders[1] = 0;
           _this.style.current.borders[3] = 0;
         }
@@ -509,7 +510,7 @@ License: CC-BY-SA-4.0
           _this.style.current.borders[3] = 1;
         }
 
-        if (deltaY == 0) {
+        if (deltaY == 0 && _this.style.current.border.allowSingle) {
           _this.style.current.borders[0] = 0;
           _this.style.current.borders[2] = 0;
         }
@@ -688,13 +689,15 @@ License: CC-BY-SA-4.0
     {
       border: {
         width: '3px',
-        thinWidth: 0
+        thinWidth: 0,
+        allowSingle: false
       }
     },
     {
       border: {
         width: '4px',
-        thinWidth: '2px'
+        thinWidth: '2px',
+        allowSingle: true
       }
     }
   ]);
@@ -711,7 +714,7 @@ License: CC-BY-SA-4.0
   style.block.borderRadiusMode.addModes([
     {
       border: {
-        radius: '3px'
+        radius: '12%'
       }
     },
     {
@@ -787,7 +790,6 @@ License: CC-BY-SA-4.0
     windowResize(event);
 
     setTimeout(function() {
-      style.block.borderRadiusMode.nextMode();
       style.block.borderMode.nextMode();
       style.block.boxSizeMode.nextMode();
       blocks.tracers.nextMode();
