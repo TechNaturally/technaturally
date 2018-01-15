@@ -71,43 +71,61 @@ a.special {
 }
 #main {
 	position: relative;
-	padding: 0 50px;
 
-	> header {
-		padding: 25px 0 10px;
-		color: #666;
-
-		img.logo {
-			display: block;
-			width: 480px;
-			margin: 0 auto;
-		}
-
-		.slogan {
-			text-align: right;
-			margin-top: 18px;
-		}
-	}
-
-	> section.content {
-		padding: 25px 0 10px;
-	}
-
+	> header,
+	> section,
 	> footer {
-		text-align: center;
-		padding: 25px 0 15px;
-		.slogan {
-			float: right;
-		}
-		.copyright {
-			float: left;
-		}
+		display: block;
+		padding: 25px 20px 10px;
 	}
 }
 
-.content {
+header {
+	color: #666;
+
+	img.logo {
+		display: block;
+		margin: 0 auto;
+		width: 95%;
+		max-width: 480px;
+	}
+
+	.slogan {
+		text-align: center;
+		margin-top: 18px;
+	}
+}
+
+section {
 	p.contact {
 			text-align: center;
 			font-size: 1.75em;
 		}
+}
+
+footer {
+	text-align: center;
+
+	.slogan {
+		float: right;
+	}
+	.copyright {
+		float: left;
+	}
+}
+
+@media only screen and (min-width: 500px) {
+	#main {
+		> header,
+		> section.content,
+		> footer {
+			padding: 25px 50px 10px;
+		}
+	}
+
+	header {
+		.slogan {
+			text-align: right;
+		}
+	}
 }
