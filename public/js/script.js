@@ -407,76 +407,180 @@ License: CC-BY-SA-4.0
     }
   };
 
-  // cheeky floating block
-  var block = {
+  // cheeky floating blocks
+  var blocks = {
     config: config.block,
     style: style.block,
     DOM: {
-      block: undefined
+      blocks: undefined
     },
+    blocks: [],
+    count: 0,
     refresh: function() {
-      this.styleBlock(this.DOM.block);
+      for (var i=0; i < this.blocks.length; i++) {
+        var block = this.blocks[i];
+        if (block) {
+          block.refresh();
+        }
+      }
     },
-    refreshBorders: function(deltaX, deltaY) {
-      if (deltaX == 0) {
-        this.style.borders[1] = 0;
-        this.style.borders[3] = 0;
-      }
-      else if (deltaX > 0) {
-        this.style.borders[1] = 1;
-        this.style.borders[3] = 0;
-      }
-      else if (deltaX < 0) {
-        this.style.borders[1] = 0;
-        this.style.borders[3] = 1;
-      }
-
-      if (deltaY == 0) {
-        this.style.borders[0] = 0;
-        this.style.borders[2] = 0;
-      }
-      else if (deltaY > 0) {
-        this.style.borders[0] = 0;
-        this.style.borders[2] = 1;
-      }
-      else if (deltaY < 0) {
-        this.style.borders[0] = 1;
-        this.style.borders[2] = 0;
-      }
-      this.refresh();
-    },
-    setBlock: function(block) {
-      this.DOM.block = block;
-      this.refresh();
-    },
-    setSize: function(size) {
-      this.config.size = size;
+    setBlocks: function(blocks) {
+      this.DOM.blocks = blocks;
       this.refresh();
     },
     setPosition: function(x, y) {
-      if (this.DOM.block) {
-        var size = this.config.size;
-        if (this.config.snap) {
-          var cell = grid.getCell(x, y);
-          x = cell.x;
-          y = cell.y;
-        }
-        if (size) {
-          x = Math.min((win.width - size), Math.max(0, (x - size / 2.0)));
-          y = Math.min((win.height - size), Math.max(0, (y - size / 2.0)));
-        }
-        this.DOM.block.style.left = x + this.style.getOffsetX(this.config.snap) + 'px';
-        this.DOM.block.style.top = y + this.style.getOffsetY(this.config.snap) + 'px';
+      if (this.blocks.length) {
+        var oldPos = this.blocks[0].position;
+        var delta = {
+          x: (x - oldPos.x),
+          y: (y - oldPos.y)
+        };
+
+        var newBlock = this.generateBlock({lifespan: 500});
+        newBlock.setPosition(oldPos.x, oldPos.y);
+        newBlock.setDelta(delta.x, delta.y);
+
+        this.blocks[0].setPosition(x, y);
+        this.blocks[0].setDelta(delta.x, delta.y);
       }
     },
-    styleBlock: function(block) {
-      var size = this.config.size || 0;
+    setSize: function(size, _this) {
+      _this = _this || this;
+      _this.config.size = size;
+      _this.refresh();
+    },
+    refreshBorders: function(deltaX, deltaY, _this) {
+      _this = _this || this;
+
+      if (deltaX == 0) {
+        _this.style.borders[1] = 0;
+        _this.style.borders[3] = 0;
+      }
+      else if (deltaX > 0) {
+        _this.style.borders[1] = 1;
+        _this.style.borders[3] = 0;
+      }
+      else if (deltaX < 0) {
+        _this.style.borders[1] = 0;
+        _this.style.borders[3] = 1;
+      }
+
+      if (deltaY == 0) {
+        _this.style.borders[0] = 0;
+        _this.style.borders[2] = 0;
+      }
+      else if (deltaY > 0) {
+        _this.style.borders[0] = 0;
+        _this.style.borders[2] = 1;
+      }
+      else if (deltaY < 0) {
+        _this.style.borders[0] = 1;
+        _this.style.borders[2] = 0;
+      }
+    },
+    styleBlock: function(block, _this) {
+      _this = _this || this;
+      var size = _this.config.size || 0;
       if (block) {
         block.style.width = size + 'px';
         block.style.height = size + 'px';
-        block.style.border = this.style.getBorder();
-        block.style.borderWidth = this.style.getBorderWidth();
-        block.style.boxSizing = this.style.boxSizing;
+        block.style.border = _this.style.getBorder();
+        block.style.borderWidth = _this.style.getBorderWidth();
+        block.style.boxSizing = _this.style.boxSizing;
+      }
+    },
+    generateBlock: function(data, _config, _style) {
+      // cheeky floating block factory
+      var block = {
+        data: data || {},
+        config: _config || config.block,
+        style: _style || style.block,
+        position: {
+          x: 0,
+          y: 0
+        },
+        delta: {
+          x: -1,
+          y: -1
+        },
+        DOM: {
+          block: undefined
+        },
+        setBlock: function(block) {
+          this.DOM.block = block;
+          this.refresh();
+        },
+        refresh: function() {
+          this.styleBlock(this.DOM.block);
+        },
+        refreshBorders: function() {
+          blocks.refreshBorders(this.delta.x, this.delta.y, this);
+          this.refresh();
+        },
+        setSize: function(size) {
+          blocks.setSize(size, this);
+        },
+        setDelta: function (deltaX, deltaY) {
+          if (deltaX != 0) {
+            this.delta.x = deltaX;
+          }
+          if (deltaY != 0) {
+            this.delta.y = deltaY;
+          }
+          this.refreshBorders();
+        },
+        setPosition: function(x, y) {
+          this.position.x = x;
+          this.position.y = y;
+          if (this.DOM.block) {
+            var size = this.config.size;
+            if (this.config.snap) {
+              var cell = grid.getCell(x, y);
+              x = cell.x;
+              y = cell.y;
+            }
+            if (size) {
+              x = Math.min((win.width - size), Math.max(0, (x - size / 2.0)));
+              y = Math.min((win.height - size), Math.max(0, (y - size / 2.0)));
+            }
+            this.DOM.block.style.left = x + this.style.getOffsetX(this.config.snap) + 'px';
+            this.DOM.block.style.top = y + this.style.getOffsetY(this.config.snap) + 'px';
+          }
+        },
+        styleBlock: function(block) {
+          blocks.styleBlock(block, this);
+        }
+      };
+
+      block.data.id = this.count++;
+      if (this.DOM.blocks) {
+        var blockDOM = document.createElement('div');
+        blockDOM.className = 'block';
+        this.DOM.blocks.appendChild(blockDOM);
+        block.setBlock(blockDOM);
+      }
+
+      var lifespan = parseInt(block.data.lifespan);
+      if (lifespan >= 0) {
+        var _this = this;
+        setTimeout(function() {
+          _this.destroyBlock(block);
+        }, lifespan);
+      }
+
+      this.blocks.push(block);
+
+      return block;
+    },
+    destroyBlock: function(block) {
+      var index = this.blocks.findIndex(function(checkBlock) {
+        return (checkBlock && checkBlock.data && block && block.data && checkBlock.data.id == block.data.id);
+      });
+      if (block && block.DOM && block.DOM.block) {
+        block.DOM.block.parentElement.removeChild(block.DOM.block);
+      }
+      if (index != -1) {
+        this.blocks.splice(index, 1);
       }
     }
   };
@@ -490,12 +594,8 @@ License: CC-BY-SA-4.0
       y: 0
     },
     setPosition: function(x, y) {
-      if (x != this.x) {
-        this.delta.x = x - this.x;
-      }
-      if (y != this.y) {
-        this.delta.y = y - this.y;
-      }
+      this.delta.x = (x - this.x);
+      this.delta.y = (y - this.y);
       this.x = x;
       this.y = y;
     }
@@ -510,6 +610,11 @@ License: CC-BY-SA-4.0
       this.height = window.innerHeight || window.clientHeight;
     }
   };
+
+
+
+  var block;
+
 
   // event handlers
   function windowResize(event) {
@@ -526,15 +631,14 @@ License: CC-BY-SA-4.0
     }
 
     grid.refresh();
-    block.setSize(grid.getSize());
+    blocks.setSize(grid.getSize());
   }
   function mouseMove(event) {
     mouse.setPosition(event.clientX, event.clientY);
     mouseMoved();
   }
   function mouseMoved() {
-    block.setPosition(mouse.x, mouse.y);
-    block.refreshBorders(mouse.delta.x, mouse.delta.y);
+    blocks.setPosition(mouse.x, mouse.y);
   }
   function touchMove(event) {
     mouse.setPosition(event.touches[0].clientX, event.touches[0].clientY);
@@ -543,17 +647,17 @@ License: CC-BY-SA-4.0
   function keyUp(event) {
     if (event.key == 's' || event.key == 'S') {
       config.block.snap = !config.block.snap;
-      block.setPosition(mouse.x, mouse.y);
+      blocks.setPosition(mouse.x, mouse.y);
     }
     else if (event.key == 'b') {
       style.block.setMode(style.block.mode + 1);
-      block.setPosition(mouse.x, mouse.y);
-      block.refresh();
+      blocks.setPosition(mouse.x, mouse.y);
+      blocks.refresh();
     }
     else if (event.key == 'B') {
       style.block.setModeB(style.block.modeB + 1);
-      block.setPosition(mouse.x, mouse.y);
-      block.refresh();
+      blocks.setPosition(mouse.x, mouse.y);
+      blocks.refresh();
     }
   }
   window.addEventListener('resize', windowResize);
@@ -562,9 +666,13 @@ License: CC-BY-SA-4.0
   window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
     // initialize grid with a container
-    grid.setGrid(getEl('#background'));
-    block.setBlock(getEl('#block'));
-    block.setSize(grid.getSize());
+    grid.setGrid(getEl('#grid'));
+    
+    // initialize blocks container
+    blocks.setBlocks(getEl('#blocks'));
+    blocks.setSize(grid.getSize());
+
+    block = blocks.generateBlock();
 
     windowResize(event);
   });

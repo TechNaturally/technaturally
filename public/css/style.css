@@ -44,21 +44,41 @@ a.special:hover, a.special:active, a.special:focus {
   color: #FF9740; }
 
 #background {
+  z-index: 0; }
+
+#background #grid {
+  z-index: 1; }
+
+#background #blocks {
+  z-index: 2; }
+
+#background #blocks .block {
+  z-index: 3; }
+
+#main {
+  z-index: 10; }
+
+#background {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0; }
-
-#block {
-  position: fixed;
-  top: 420px;
-  left: 80%;
-  display: block;
-  width: 25px;
-  height: 25px;
-  border: 3px solid #333;
-  border-width: 3px 0 0 3px; }
+  #background #grid, #background #blocks {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0; }
+  #background .block {
+    position: absolute;
+    top: 420px;
+    left: 80%;
+    display: block;
+    width: 25px;
+    height: 25px;
+    border: 3px solid #333;
+    border-width: 3px 0 0 3px; }
 
 #main {
   position: relative; }
