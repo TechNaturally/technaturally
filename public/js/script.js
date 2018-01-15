@@ -271,6 +271,34 @@ License: CC-BY-SA-4.0
     refresh: function() {
       this.styleBlock(this.DOM.block);
     },
+    refreshBorders: function(deltaX, deltaY) {
+      if (deltaX == 0) {
+        this.style.borders[1] = 0;
+        this.style.borders[3] = 0;
+      }
+      else if (deltaX > 0) {
+        this.style.borders[1] = 1;
+        this.style.borders[3] = 0;
+      }
+      else if (deltaX < 0) {
+        this.style.borders[1] = 0;
+        this.style.borders[3] = 1;
+      }
+
+      if (deltaY == 0) {
+        this.style.borders[0] = 0;
+        this.style.borders[2] = 0;
+      }
+      else if (deltaY > 0) {
+        this.style.borders[0] = 0;
+        this.style.borders[2] = 1;
+      }
+      else if (deltaY < 0) {
+        this.style.borders[0] = 1;
+        this.style.borders[2] = 0;
+      }
+      this.refresh();
+    },
     setBlock: function(block) {
       this.DOM.block = block;
       this.refresh();
@@ -309,7 +337,17 @@ License: CC-BY-SA-4.0
   var mouse = {
     x: 0,
     y: 0,
+    delta: {
+      x: 0,
+      y: 0
+    },
     setPosition: function(x, y) {
+      if (x != this.x) {
+        this.delta.x = x - this.x;
+      }
+      if (y != this.y) {
+        this.delta.y = y - this.y;
+      }
       this.x = x;
       this.y = y;
     }
@@ -326,6 +364,7 @@ License: CC-BY-SA-4.0
   function mouseMove(event) {
     mouse.setPosition(event.clientX, event.clientY);
     block.setPosition(mouse.x, mouse.y);
+    block.refreshBorders(mouse.delta.x, mouse.delta.y);
   }
   function keyDown(event) {
     if (event.key == 's' || event.key == 'S') {
