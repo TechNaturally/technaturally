@@ -1,11 +1,11 @@
 body {
 	font-family: 'Lato', sans-serif;
 	letter-spacing: 1px;
-	color: #333;
+	color: #555;
 }
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'Open Sans', sans-serif;
-	letter-spacing: 0;
+	font-family: 'Arima Madurai', sans-serif;
+	letter-spacing: 1px;
 	font-weight: bold;
 	font-style: italic;
 }
@@ -16,32 +16,65 @@ p {
 	margin-bottom: 1.25em;
 	padding-left: 10px;
 }
+blockquote {
+	font-family: 'Oregano', cursive;
+}
+
+a {
+	&,
+	&:link,
+	&:visited {
+		color: #656637;
+	}
+	&:hover,
+	&:active,
+	&:focus {
+		color: #76A04D;
+	}
+}
+a.special {
+	&,
+	&:link,
+	&:visited {
+		color: #E15E35;
+	}
+	&:hover,
+	&:active,
+	&:focus {
+		color: #FF9740;
+	}
+}
 
 #main {
 	padding: 0 50px;
 
-	/* SITE HEADER */
 	> header {
 		padding: 25px 0 10px;
 		color: #666;
 
 		img.logo {
+			display: block;
 			width: 480px;
+			margin: 0 auto;
 		}
 
 		.slogan {
 			text-align: right;
+			margin-top: 10px;
 		}
 	}
 
 
-	/* SITE CONTENT */
 	section.content {
 		padding: 25px 0 10px;
+
+		p.contact {
+			text-align: center;
+			font-size: 1.75em;
+		}
 	}
 
 
-	/* SITE FOOTER */
 	> footer {
 		padding: 25px 0 15px;
 		text-align: right;
