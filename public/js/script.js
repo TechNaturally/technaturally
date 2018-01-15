@@ -480,36 +480,42 @@ License: CC-BY-SA-4.0
     },
     setSize: function(size, _this) {
       _this = _this || this;
+      config.block.size = size;
       _this.config.size = size;
       _this.refresh();
     },
     refreshBorders: function(deltaX, deltaY, _this) {
       _this = _this || this;
 
-      if (deltaX == 0) {
-        _this.style.current.borders[1] = 0;
-        _this.style.current.borders[3] = 0;
+      if (deltaX == 0 && deltaY == 0) {
+        // special handling if no motion
       }
-      else if (deltaX > 0) {
-        _this.style.current.borders[1] = 1;
-        _this.style.current.borders[3] = 0;
-      }
-      else if (deltaX < 0) {
-        _this.style.current.borders[1] = 0;
-        _this.style.current.borders[3] = 1;
-      }
+      else {
+        if (deltaX == 0) {
+          _this.style.current.borders[1] = 0;
+          _this.style.current.borders[3] = 0;
+        }
+        else if (deltaX > 0) {
+          _this.style.current.borders[1] = 1;
+          _this.style.current.borders[3] = 0;
+        }
+        else if (deltaX < 0) {
+          _this.style.current.borders[1] = 0;
+          _this.style.current.borders[3] = 1;
+        }
 
-      if (deltaY == 0) {
-        _this.style.current.borders[0] = 0;
-        _this.style.current.borders[2] = 0;
-      }
-      else if (deltaY > 0) {
-        _this.style.current.borders[0] = 0;
-        _this.style.current.borders[2] = 1;
-      }
-      else if (deltaY < 0) {
-        _this.style.current.borders[0] = 1;
-        _this.style.current.borders[2] = 0;
+        if (deltaY == 0) {
+          _this.style.current.borders[0] = 0;
+          _this.style.current.borders[2] = 0;
+        }
+        else if (deltaY > 0) {
+          _this.style.current.borders[0] = 0;
+          _this.style.current.borders[2] = 1;
+        }
+        else if (deltaY < 0) {
+          _this.style.current.borders[0] = 1;
+          _this.style.current.borders[2] = 0;
+        }
       }
     },
     styleBlock: function(block, _this) {
@@ -563,12 +569,8 @@ License: CC-BY-SA-4.0
           blocks.setSize(size, this);
         },
         setDelta: function (deltaX, deltaY) {
-          if (deltaX != 0) {
-            this.delta.x = deltaX;
-          }
-          if (deltaY != 0) {
-            this.delta.y = deltaY;
-          }
+          this.delta.x = deltaX;
+          this.delta.y = deltaY;
           this.delta.length = pythagorean(this.delta.x, this.delta.y);
           this.refreshBorders();
         },
@@ -667,7 +669,7 @@ License: CC-BY-SA-4.0
       className: 'tracer-1'
     },
     {
-      threshold: 10,
+      threshold: 5,
       lifespan: 5000,
       className: 'tracer-2'
     }
