@@ -379,8 +379,15 @@ License: CC-BY-SA-4.0
   }
   function mouseMove(event) {
     mouse.setPosition(event.clientX, event.clientY);
+    mouseMoved();
+  }
+  function mouseMoved() {
     block.setPosition(mouse.x, mouse.y);
     block.refreshBorders(mouse.delta.x, mouse.delta.y);
+  }
+  function touchMove(event) {
+    mouse.setPosition(event.touches[0].clientX, event.touches[0].clientY);
+    mouseMoved();
   }
   function keyUp(event) {
     if (event.key == 's' || event.key == 'S') {
@@ -405,7 +412,7 @@ License: CC-BY-SA-4.0
   }
   window.addEventListener('resize', windowResize);
   window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('touchmove', mouseMove);
+  window.addEventListener('touchmove', touchMove);
   window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
     // initialize grid with a container
