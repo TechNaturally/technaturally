@@ -692,6 +692,7 @@ License: CC-BY-SA-4.0
       }
     }
   ]);
+
   style.block.boxSizeMode = cycle.getCycler(style.block, 'mode'),
   style.block.boxSizeMode.refresh = style.block.refreshStyle;
   style.block.boxSizeMode.addModes([
@@ -763,5 +764,10 @@ License: CC-BY-SA-4.0
     block = blocks.generateBlock();
 
     windowResize(event);
+
+    setTimeout(function() {
+      blocks.tracers.nextMode();
+      style.block.borderMode.nextMode();
+    }, 3000);
   });
 })();
