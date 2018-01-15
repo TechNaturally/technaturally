@@ -373,7 +373,17 @@ License: CC-BY-SA-4.0
   function windowResize(event) {
     var w = window.innerWidth || window.clientWidth;
     var h = window.innerHeight || window.clientHeight;
-    
+
+    if (w < 500) {
+      if (config.grid.cols != 16) {
+        cache['config.grid.cols'] = config.grid.cols;
+      }
+      config.grid.cols = 16;
+    }
+    else {
+      config.grid.cols = cache['config.grid.cols'];
+    }
+
     grid.refresh();
     block.setSize(grid.getSize());
   }
@@ -416,8 +426,10 @@ License: CC-BY-SA-4.0
   window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
     // initialize grid with a container
-    grid.setGrid( getEl('#background') );
-    block.setBlock( getEl('#block') );
+    grid.setGrid(getEl('#background'));
+    block.setBlock(getEl('#block'));
     block.setSize(grid.getSize());
+
+    windowResize(event);
   });
 })();
