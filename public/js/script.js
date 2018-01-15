@@ -9,7 +9,7 @@ License: CC-BY-SA-4.0
 */
 
 (function(){
-  var LOOPSANITY = 9999; // used to break gnarly while loops
+  var LOOPSANITY = 999; // used to break gnarly while loops
 
   // shortcuts
   function getEl(selector) {
@@ -435,7 +435,8 @@ License: CC-BY-SA-4.0
     tracer: {
       threshold: -1,
       lifespan: -1,
-      className: ''
+      className: '',
+      maxCount: LOOPSANITY
     },
     tracers: undefined,
     count: 0,
@@ -475,7 +476,21 @@ License: CC-BY-SA-4.0
           var newBlock = this.generateBlock({
             lifespan: this.tracer.lifespan
           });
-          newBlock.setClassName(this.tracer.className);
+          var sanity = LOOPSANITY;
+          while (--sanity && this.tracer.maxCount >= 0 && this.blocks.length > this.tracer.maxCount) {
+            var tracerIndex = this.blocks.findIndex(function(item) {
+              return (item && item.DOM && item.DOM.block && elHasClass(item.DOM.block, 'tracer'));
+            });
+            if (tracerIndex >= 0 && tracerIndex < this.blocks.length) {
+              this.destroyBlock(undefined, tracerIndex);
+            }
+          }
+
+          var className = this.tracer.className;
+          if (!strHasWord(className, 'tracer')) {
+            className = 'tracer '+className;
+          }
+          newBlock.setClassName(className);
           newBlock.setPosition(oldPos.x, oldPos.y);
           newBlock.setDelta(delta.x, delta.y);
         }
@@ -615,7 +630,7 @@ License: CC-BY-SA-4.0
       var lifespan = parseInt(block.data.lifespan);
       if (lifespan >= 0) {
         var _this = this;
-        setTimeout(function() {
+        block.data.lifeTimeout = setTimeout(function() {
           _this.destroyBlock(block);
         }, lifespan);
       }
@@ -624,12 +639,25 @@ License: CC-BY-SA-4.0
 
       return block;
     },
-    destroyBlock: function(block) {
-      var index = this.blocks.findIndex(function(checkBlock) {
-        return (checkBlock && checkBlock.data && block && block.data && checkBlock.data.id == block.data.id);
-      });
-      if (block && block.DOM && block.DOM.block) {
-        block.DOM.block.parentElement.removeChild(block.DOM.block);
+    destroyBlock: function(block, index) {
+      if (block) {
+        index = this.blocks.findIndex(function(checkBlock) {
+          return (checkBlock && checkBlock.data && block && block.data && checkBlock.data.id == block.data.id);
+        });
+      }
+      if (index != -1 && !block) {
+        if (index >= 0 && index < this.blocks.length) {
+          block = this.blocks[index];
+        }
+      }
+      if (block) {
+        if (block.data && block.data.lifeTimeout) {
+          clearTimeout(block.data.lifeTimeout);
+          block.data.lifeTimeout = undefined;
+        }
+        if (block.DOM && block.DOM.block) {
+          block.DOM.block.parentElement.removeChild(block.DOM.block);
+        }
       }
       if (index != -1) {
         this.blocks.splice(index, 1);
@@ -668,16 +696,25 @@ License: CC-BY-SA-4.0
     {
       threshold: -1,
       lifespan: -1,
+      maxCount: LOOPSANITY,
       className: ''
     },
     {
-      threshold: 8,
+      threshold: 5,
       lifespan: 500,
+      maxCount: 50,
+      className: 'tracer-0'
+    },
+    {
+      threshold: 5,
+      lifespan: 2500,
+      maxCount: LOOPSANITY,
       className: 'tracer-1'
     },
     {
-      threshold: 8,
+      threshold: 5,
       lifespan: 5000,
+      maxCount: LOOPSANITY,
       className: 'tracer-2'
     }
   ]);
@@ -792,6 +829,7 @@ License: CC-BY-SA-4.0
     setTimeout(function() {
       style.block.borderMode.nextMode();
       style.block.boxSizeMode.nextMode();
+      blocks.tracers.nextMode();
       blocks.tracers.nextMode();
       blocks.tracers.nextMode();
     }, 3000);
