@@ -405,6 +405,7 @@ License: CC-BY-SA-4.0
   }
   window.addEventListener('resize', windowResize);
   window.addEventListener('mousemove', mouseMove);
+  window.addEventListener('touchmove', mouseMove);
   window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
     // initialize grid with a container
