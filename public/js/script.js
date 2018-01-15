@@ -56,7 +56,7 @@ License: CC-BY-SA-4.0
 
   var config = {
     grid: {
-      cols: 25,
+      cols: 32,
       size: undefined,
     },
     block: {
