@@ -20,9 +20,23 @@ License: CC-BY-SA-4.0
   }
 
   var style = {
+    Border: {
+      getBorder: function(border) {
+        return (border.width+' '+border.style+' '+border.color);
+      },
+      getBorderWidth: function(border, matrix) {
+        return matrix.join(' ').replace(/1/g, border.width);
+      }
+    },
     grid: {
-      width: '1px',
-      color: '#DDD'
+      border: {
+        width: '1px',
+        color: '#DDD',
+        style: 'solid'
+      },
+      getBorder: function() {
+        return style.Border.getBorder(this.border);
+      }
     },
     block: {
       border: {
@@ -32,10 +46,10 @@ License: CC-BY-SA-4.0
       },
       borders: [1, 0, 0, 1],
       getBorder: function() {
-        return (this.border.width+' '+this.border.style+' '+this.border.color);
+        return style.Border.getBorder(this.border);
       },
       getBorderWidth: function() {
-        return this.borders.join(' ').replace(/1/g, this.border.width);
+        return style.Border.getBorderWidth(this.border, this.borders);
       }
     }
   };
@@ -129,6 +143,7 @@ License: CC-BY-SA-4.0
           this.DOM.grid.appendChild(col);
         }
         this.DOM.cols[index] = col;
+        col.className = 'col col-'+index;
       }
     },
     setRow: function(index, row) {
@@ -138,6 +153,7 @@ License: CC-BY-SA-4.0
           this.DOM.grid.appendChild(row);
         }
         this.DOM.rows[index] = row;
+        row.className = 'row row-'+index;
       }
     },
     fixCols: function(length, size, height) {
@@ -196,7 +212,7 @@ License: CC-BY-SA-4.0
       el.style.width = '100%';
       return el;
     },
-    styleCol: function(index, size, height) {
+    styleCol: function(index, size, height, last) {
       var col = this.getCol(index);
       if (!col) {
         col = this.generateCol();
@@ -204,11 +220,13 @@ License: CC-BY-SA-4.0
       }
       if (col) {
         col.style.left = (index * size) + 'px';
-        col.style.width = this.style.width;
-        col.style.backgroundColor = this.style.color;
+        col.style.width = size + 'px';
+
+        col.style.border = this.style.getBorder();
+        col.style.borderWidth = style.Border.getBorderWidth(this.style.border, [0, (last ? 1 : 0), 0, 1]);
       }
     },
-    styleRow: function(index, size, width) {
+    styleRow: function(index, size, width, last) {
       var row = this.getRow(index);
       if (!row) {
         row = this.generateRow();
@@ -216,18 +234,20 @@ License: CC-BY-SA-4.0
       }
       if (row) {
         row.style.top = (index * size) + 'px';
-        row.style.height = this.style.width;
-        row.style.backgroundColor = this.style.color;
+        row.style.height = size + 'px';
+
+        row.style.border = this.style.getBorder();
+        row.style.borderWidth = style.Border.getBorderWidth(this.style.border, [1, 0, (last ? 1 : 0), 0]);
       }
     },
     styleCols: function(size, height) {
       for (var i=0; i < this.DOM.cols.length; i++) {
-        this.styleCol(i, size, height);
+        this.styleCol(i, size, height, (i == this.DOM.cols.length-1));
       }
     },
     styleRows: function(size, width) {
       for (var i=0; i < this.DOM.rows.length; i++) {
-        this.styleRow(i, size, width);
+        this.styleRow(i, size, width, (i == this.DOM.rows.length-1));
       }
     }
   };
@@ -249,6 +269,17 @@ License: CC-BY-SA-4.0
       this.config.size = size;
       this.refresh();
     },
+    setPosition: function(x, y) {
+      if (this.DOM.block) {
+        var size = this.config.size;
+        if (size) {
+          x = Math.max(0, (x - size / 2.0));
+          y = Math.max(0, (y - size / 2.0));
+        }
+        this.DOM.block.style.left = x + 'px';
+        this.DOM.block.style.top = y + 'px';
+      }
+    },
     styleBlock: function(block) {
       var size = this.config.size || 0;
       if (block) {
@@ -269,12 +300,23 @@ License: CC-BY-SA-4.0
     block.setSize(grid.getSize());
   }
 
+  function mouseMoved(event) {
+    block.setPosition(event.clientX, event.clientY);
+  }
+
   window.addEventListener('resize', windowResized);
-  document.addEventListener("DOMContentLoaded", function(event) { 
+  window.addEventListener('mousemove', mouseMoved);
+  document.addEventListener('DOMContentLoaded', function(event) { 
+    var body = getEl('body');
+
     // initialize grid with a container
     grid.setGrid( getEl('#background') );
     block.setBlock( getEl('#block') );
     block.setSize(grid.getSize());
+
+    if (body && block.DOM.block) {
+      //body.style.cursor = 'none';
+    }
   });
 
 })();
