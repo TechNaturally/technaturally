@@ -18,6 +18,15 @@ License: CC-BY-SA-4.0
   function getEls(selector) {
     return document.querySelectorAll(selector);
   }
+  function elHasClass(el, className) {
+    return strHasWord(el.className, className);
+  }
+  function strHasWord(string, word) {
+    return (' ' + string + ' ').indexOf(' '+word+' ') > -1;
+  }
+  function pythagorean(l1, l2) {
+    return Math.sqrt(l1*l1 + l2*l2);
+  }
 
   // capitalizeFirstLetter
   // source: https://stackoverflow.com/a/1026087/1798697
@@ -34,9 +43,6 @@ License: CC-BY-SA-4.0
     }
     return into;
   }
-
-  // cache (used to store swap values)
-  var cache = {};
 
   // utilities to cycle through array
   var cycle = {
@@ -117,9 +123,7 @@ License: CC-BY-SA-4.0
       size: 25,
       snap: true
     },
-    blocks: {
-      tracer: undefined
-    }
+    blocks: {}
   };
 
   // some styles for the things
@@ -422,12 +426,29 @@ License: CC-BY-SA-4.0
       blocks: undefined
     },
     blocks: [],
+    tracer: {
+      threshold: -1,
+      lifespan: -1,
+      className: ''
+    },
+    tracers: undefined,
     count: 0,
     refresh: function() {
       for (var i=0; i < this.blocks.length; i++) {
         var block = this.blocks[i];
         if (block) {
           block.refresh();
+        }
+      }
+    },
+    refreshTracers: function(fresh, _this) {
+      _this = _this || this;
+      if (fresh) {
+        deepExtend(_this.tracer, fresh);
+      }
+      else {
+        if (this.tracers) {
+          deepExtend(_this.tracer, this.tracers.getMode());
         }
       }
     },
@@ -442,10 +463,16 @@ License: CC-BY-SA-4.0
           x: (x - oldPos.x),
           y: (y - oldPos.y)
         };
+        delta.length = pythagorean(delta.x, delta.y);
 
-        var newBlock = this.generateBlock({lifespan: 500});
-        newBlock.setPosition(oldPos.x, oldPos.y);
-        newBlock.setDelta(delta.x, delta.y);
+        if (this.tracer && this.tracer.lifespan > 0 && this.tracer.threshold >= 0 && delta.length >= this.tracer.threshold) {
+          var newBlock = this.generateBlock({
+            lifespan: this.tracer.lifespan
+          });
+          newBlock.setClassName(this.tracer.className);
+          newBlock.setPosition(oldPos.x, oldPos.y);
+          newBlock.setDelta(delta.x, delta.y);
+        }
 
         this.blocks[0].setPosition(x, y);
         this.blocks[0].setDelta(delta.x, delta.y);
@@ -524,6 +551,14 @@ License: CC-BY-SA-4.0
           blocks.refreshBorders(this.delta.x, this.delta.y, this);
           this.refresh();
         },
+        setClassName: function(className) {
+          if (this.DOM.block) {
+            if (!strHasWord(className, 'block')) {
+              className = 'block '+className;
+            }
+            this.DOM.block.className = className;
+          }
+        },
         setSize: function(size) {
           blocks.setSize(size, this);
         },
@@ -534,6 +569,7 @@ License: CC-BY-SA-4.0
           if (deltaY != 0) {
             this.delta.y = deltaY;
           }
+          this.delta.length = pythagorean(this.delta.x, this.delta.y);
           this.refreshBorders();
         },
         setPosition: function(x, y) {
@@ -618,14 +654,25 @@ License: CC-BY-SA-4.0
     }
   };
 
-
-  config.blocks.tracer = cycle.getCycler(this, 'mode');
-  config.blocks.tracer.addMode(
+  blocks.tracers = cycle.getCycler(blocks, 'mode');
+  blocks.tracers.addModes([
+    {
+      threshold: -1,
+      lifespan: -1,
+      className: ''
+    },
+    {
+      threshold: 5,
+      lifespan: 500,
+      className: 'tracer-1'
+    },
     {
       threshold: 10,
-      lifepan: 500
+      lifespan: 5000,
+      className: 'tracer-2'
     }
-  );
+  ]);
+  blocks.tracers.refresh = blocks.refreshTracers;
 
   style.block.borderMode = cycle.getCycler(style.block, 'mode'),
   style.block.borderMode.refresh = style.block.refreshStyle;
@@ -646,7 +693,7 @@ License: CC-BY-SA-4.0
   style.block.boxSizeMode = cycle.getCycler(style.block, 'mode'),
   style.block.boxSizeMode.refresh = style.block.refreshStyle;
   style.block.boxSizeMode.addModes([
-    {},
+    { boxSizing: 'border-box' },
     { boxSizing: 'content-box' }
   ]);
 
@@ -694,6 +741,9 @@ License: CC-BY-SA-4.0
     else if (event.key == 'B') {
       style.block.boxSizeMode.nextMode();
       blocks.setPosition(mouse.x, mouse.y);
+    }
+    else if (event.key == 't' || event.key == 'T') {
+      blocks.tracers.nextMode();
     }
   }
   window.addEventListener('resize', windowResize);
