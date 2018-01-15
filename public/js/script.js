@@ -39,7 +39,7 @@ License: CC-BY-SA-4.0
   function deepExtend(into, obj) {
     obj = obj || {};
     for (var i in obj) {
-      into[i] = (typeof obj[i] == "object") ? deepExtend(obj[i].constructor(), obj[i]) : obj[i];
+      into[i] = (typeof obj[i] == "object") ? deepExtend(into[i], obj[i]) : obj[i];
     }
     return into;
   }
@@ -151,13 +151,15 @@ License: CC-BY-SA-4.0
     block: {
       borderMode: undefined,
       boxSizeMode: undefined,
+      borderRadiusMode: undefined,
       current: {
         boxSizing: 'border-box',
         border: {
           width: '3px',
           thinWidth: 0,
           style: 'solid',
-          color: '#AAA'
+          color: '#AAA',
+          radius: 0
         },
         offset: {
           x: 0,
@@ -182,6 +184,9 @@ License: CC-BY-SA-4.0
           }
           if (this.boxSizeMode) {
             deepExtend(_this.current, this.boxSizeMode.getMode());
+          }
+          if (this.borderRadiusMode) {
+            deepExtend(_this.current, this.borderRadiusMode.getMode());
           }
         }
       },
@@ -527,6 +532,7 @@ License: CC-BY-SA-4.0
         block.style.border = _this.style.getBorder();
         block.style.borderWidth = _this.style.getBorderWidth();
         block.style.boxSizing = _this.style.current.boxSizing;
+        block.style.borderRadius = _this.style.current.border.radius;
       }
     },
     generateBlock: function(data, _config, _style) {
@@ -664,19 +670,19 @@ License: CC-BY-SA-4.0
       className: ''
     },
     {
-      threshold: 5,
+      threshold: 8,
       lifespan: 500,
       className: 'tracer-1'
     },
     {
-      threshold: 5,
+      threshold: 8,
       lifespan: 5000,
       className: 'tracer-2'
     }
   ]);
   blocks.tracers.refresh = blocks.refreshTracers;
 
-  style.block.borderMode = cycle.getCycler(style.block, 'mode'),
+  style.block.borderMode = cycle.getCycler(style.block, 'mode');
   style.block.borderMode.refresh = style.block.refreshStyle;
   style.block.borderMode.addModes([
     {
@@ -693,11 +699,26 @@ License: CC-BY-SA-4.0
     }
   ]);
 
-  style.block.boxSizeMode = cycle.getCycler(style.block, 'mode'),
+  style.block.boxSizeMode = cycle.getCycler(style.block, 'mode');
   style.block.boxSizeMode.refresh = style.block.refreshStyle;
   style.block.boxSizeMode.addModes([
     { boxSizing: 'border-box' },
     { boxSizing: 'content-box' }
+  ]);
+
+  style.block.borderRadiusMode = cycle.getCycler(style.block, 'mode');
+  style.block.borderRadiusMode.refresh = style.block.refreshStyle;
+  style.block.borderRadiusMode.addModes([
+    {
+      border: {
+        radius: '3px'
+      }
+    },
+    {
+      border: {
+        radius: '50%'
+      }
+    }
   ]);
 
 
@@ -737,13 +758,13 @@ License: CC-BY-SA-4.0
       blocks.setPosition(mouse.x, mouse.y);
     }
     else if (event.key == 'b') {
-      //style.block.setMode(style.block.mode + 1);
       style.block.borderMode.nextMode();
-      blocks.setPosition(mouse.x, mouse.y);
     }
     else if (event.key == 'B') {
       style.block.boxSizeMode.nextMode();
-      blocks.setPosition(mouse.x, mouse.y);
+    }
+    else if (event.key == 'c' || event.key == 'C') {
+      style.block.borderRadiusMode.nextMode();
     }
     else if (event.key == 't' || event.key == 'T') {
       blocks.tracers.nextMode();
@@ -766,8 +787,11 @@ License: CC-BY-SA-4.0
     windowResize(event);
 
     setTimeout(function() {
-      blocks.tracers.nextMode();
+      style.block.borderRadiusMode.nextMode();
       style.block.borderMode.nextMode();
+      style.block.boxSizeMode.nextMode();
+      blocks.tracers.nextMode();
+      blocks.tracers.nextMode();
     }, 3000);
   });
 })();

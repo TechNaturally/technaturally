@@ -77,15 +77,15 @@ a.special:hover, a.special:active, a.special:focus {
     left: 0;
     width: 25px;
     height: 25px;
-    border: 3px solid #333;
+    border: 3px solid #AAA;
     border-width: 3px 0 0 3px;
-    border-radius: 25%;
-    opacity: 0.7; }
+    opacity: 0.8;
+    border-radius: 0; }
   #background .block:first-child {
     top: 50%;
     left: 75%; }
   #background .block.tracer-1, #background .block.tracer-2 {
-    opacity: 0.3; }
+    opacity: 0.25; }
 
 #main {
   position: relative; }
