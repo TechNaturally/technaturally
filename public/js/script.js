@@ -19,8 +19,108 @@ License: CC-BY-SA-4.0
     return document.querySelectorAll(selector);
   }
 
+  // capitalizeFirstLetter
+  // source: https://stackoverflow.com/a/1026087/1798697
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // deepExtend
+  // source: https://gist.github.com/Ely-S/4191458
+  function deepExtend(into, obj) {
+    obj = obj || {};
+    for (var i in obj) {
+      into[i] = (typeof obj[i] == "object") ? deepExtend(obj[i].constructor(), obj[i]) : obj[i];
+    }
+    return into;
+  }
+
   // cache (used to store swap values)
   var cache = {};
+
+  // utilities to cycle through array
+  var cycle = {
+    getCycler: function(_this, name, names) {
+      // cycle factory
+      var cycler = {};
+      name = name || 'step';
+      names = names || name+'s';
+      var nameIndex = name+'Index';
+      var nameCap = capitalizeFirstLetter(name);
+      var namesCap = capitalizeFirstLetter(names);
+      cycler[names] = [];
+      cycler[nameIndex] = -1; // no entries yet
+      cycler['add'+nameCap] = function(entry) {
+        this[names].push(entry);
+        if (this[nameIndex] == -1) {
+          this['set'+nameCap](0);
+        }
+      };
+      cycler['add'+namesCap] = function(entries) {
+        if (!entries || !entries.length) {
+          return;
+        }
+        for (var i=0; i < entries.length; i++) {
+          this['add'+nameCap](entries[i]);
+        }
+      };
+      cycler['get'+nameCap] = function() {
+        if (this[nameIndex] >= 0 && this[nameIndex] < this[names].length) {
+          return this[names][this[nameIndex]];
+        }
+      };
+      cycler['next'+nameCap] = function() {
+        this['set'+nameCap](this[nameIndex] + 1);
+      };
+      cycler['set'+nameCap] = function(index) {
+        this[nameIndex] = cycle.boundIndex(index, this[names]);
+        var entry = this['get'+nameCap]();
+        if (typeof this.refresh == 'function') {
+          this.refresh(entry, _this);
+        }
+        return entry;
+      };
+      return cycler;
+    },
+    boundIndex: function(index, items, lock) {
+      if (!items || !items.length) {
+        return -1;
+      }
+      if (index >= items.length) {
+        if (lock) {
+          index = items.length - 1;
+        }
+        else {
+          index = 0;
+        }
+      }
+      else if (index < 0) {
+        if (lock) {
+          index = 0;
+        }
+        else {
+          index = items.length - 1;
+        }
+      }
+      return index;
+    }
+  };
+
+  var config = {
+    // optional preset number of cols or cell size
+    grid: {
+      cols: 32,
+      size: undefined
+    },
+    // cheeky stuff below updates the block size
+    block: {
+      size: 25,
+      snap: true
+    },
+    blocks: {
+      tracer: undefined
+    }
+  };
 
   // some styles for the things
   var style = {
@@ -45,41 +145,49 @@ License: CC-BY-SA-4.0
       }
     },
     block: {
-      modes: [
-        { border: { width: '3px', thinWidth: 0 } },
-        { border: { width: '4px', thinWidth: '2px'} }
-      ],
-      modesB: [
-        {},
-        { boxSizing: 'content-box' }
-      ],
-      mode: 0,
-      modeB: 0,
-      boxSizing: 'border-box',
-      border: {
-        width: '3px',
-        thinWidth: 0,
-        style: 'solid',
-        color: '#AAA'
+      borderMode: undefined,
+      boxSizeMode: undefined,
+      current: {
+        boxSizing: 'border-box',
+        border: {
+          width: '3px',
+          thinWidth: 0,
+          style: 'solid',
+          color: '#AAA'
+        },
+        offset: {
+          x: 0,
+          y: 0
+        },
+        borders: [1, 0, 0, 1]
       },
-      offset: {
-        x: 0,
-        y: 0
-      },
-      borders: [1, 0, 0, 1],
       getBorder: function() {
-        return style.Border.getBorder(this.border);
+        return style.Border.getBorder(this.current.border);
       },
       getBorderWidth: function() {
-        return style.Border.getBorderWidth(this.border, this.borders);
+        return style.Border.getBorderWidth(this.current.border, this.current.borders);
+      },
+      refreshStyle: function(fresh, _this) {
+        _this = _this || this;
+        if (fresh) {
+          deepExtend(_this.current, fresh);
+        }
+        else {
+          if (this.borderMode) {
+            deepExtend(_this.current, this.borderMode.getMode());
+          }
+          if (this.boxSizeMode) {
+            deepExtend(_this.current, this.boxSizeMode.getMode());
+          }
+        }
       },
       getOffsetX: function(snap) {
-        var offset = this.offset.x || 0;
+        var offset = this.current.offset.x || 0;
         if (snap) {
-          var borderWidth = parseInt(this.border.width) || 0;
-          var borderThinWidth = parseInt(this.border.thinWidth) || 0;
-          if (this.boxSizing == 'content-box') {
-            if (this.borders[3]) {
+          var borderWidth = parseInt(this.current.border.width) || 0;
+          var borderThinWidth = parseInt(this.current.border.thinWidth) || 0;
+          if (this.current.boxSizing == 'content-box') {
+            if (this.current.borders[3]) {
               offset -= (borderWidth - 1);
               if (borderThinWidth) {
                 offset -= borderThinWidth;
@@ -90,12 +198,12 @@ License: CC-BY-SA-4.0
         return offset;
       },
       getOffsetY: function(snap) {
-        var offset = this.offset.y || 0;
+        var offset = this.current.offset.y || 0;
         if (snap) {
-          var borderWidth = parseInt(this.border.width) || 0;
-          var borderThinWidth = parseInt(this.border.thinWidth) || 0;
-          if (this.boxSizing == 'content-box') {
-            if (this.borders[0]) {
+          var borderWidth = parseInt(this.current.border.width) || 0;
+          var borderThinWidth = parseInt(this.current.border.thinWidth) || 0;
+          if (this.current.boxSizing == 'content-box') {
+            if (this.current.borders[0]) {
               offset -= (borderWidth - 1);
               if (borderThinWidth) {
                 offset -= borderThinWidth;
@@ -104,108 +212,7 @@ License: CC-BY-SA-4.0
           }
         }
         return offset;
-      },
-      refreshStyle: function() {
-        if (this.mode >= 0 && this.mode < this.modes.length){
-          var mode = this.modes[this.mode];
-          if (mode.border) {
-            if (mode.border.width !== undefined) {
-              if (cache['style.block.border.width'] === undefined) {
-                cache['style.block.border.width'] = this.border.width;
-              }
-              this.border.width = mode.border.width;
-            }
-            else if (cache['style.block.border.width'] !== undefined) {
-              this.border.width = cache['style.block.border.width'];
-            }
-            if (mode.border.thinWidth !== undefined) {
-              if (cache['style.block.border.thinWidth'] === undefined) {
-                cache['style.block.border.thinWidth'] = this.border.thinWidth;
-              }
-              this.border.thinWidth = mode.border.thinWidth;
-            }
-            else if (cache['style.block.border.thinWidth'] !== undefined) {
-              this.border.thinWidth = cache['style.block.border.thinWidth'];
-            }
-          }
-        }
-      },
-      refreshStyleB: function() {
-        if (this.modeB >= 0 && this.modeB < this.modesB.length){
-          var modeB = this.modesB[this.modeB];
-          if (modeB.boxSizing) {
-            if (cache['style.block.boxSizing'] === undefined) {
-              cache['style.block.boxSizing'] = this.boxSizing;
-            }
-            this.boxSizing = modeB.boxSizing;
-          }
-          else if (cache['style.block.boxSizing'] !== undefined) {
-            this.boxSizing = cache['style.block.boxSizing'];
-          }
-          if (modeB.offset) {
-            if (cache['style.block.offset'] === undefined) {
-              cache['style.block.offset'] = this.offset;
-            }
-            this.offset = modeB.offset;
-          }
-          else if (cache['style.block.offset'] !== undefined) {
-            this.offset = cache['style.block.offset'];
-          }
-        }
-      },
-      setMode: function(mode, lock) {
-        if (mode >= this.modes.length) {
-          if (lock) {
-            mode = this.modes.length - 1;
-          }
-          else {
-            mode = 0;
-          }
-        }
-        else if (mode < 0) {
-          if (lock) {
-            mode = 0;
-          }
-          else {
-            mode = this.modes.length - 1;
-          }
-        }
-        this.mode = mode;
-        this.refreshStyle();
-      },
-      setModeB: function(modeB, lock) {
-        if (modeB >= this.modesB.length) {
-          if (lock) {
-            modeB = this.modesB.length - 1;
-          }
-          else {
-            modeB = 0;
-          }
-        }
-        else if (modeB < 0) {
-          if (lock) {
-            modeB = 0;
-          }
-          else {
-            modeB = this.modesB.length - 1;
-          }
-        }
-        this.modeB = modeB;
-        this.refreshStyleB();
       }
-    }
-  };
-
-  var config = {
-    // optional preset number of cols or cell size
-    grid: {
-      cols: 32,
-      size: undefined
-    },
-    // cheeky stuff below updates the block size
-    block: {
-      size: 25,
-      snap: true
     }
   };
 
@@ -409,7 +416,7 @@ License: CC-BY-SA-4.0
 
   // cheeky floating blocks
   var blocks = {
-    config: config.block,
+    config: config.blocks,
     style: style.block,
     DOM: {
       blocks: undefined
@@ -453,29 +460,29 @@ License: CC-BY-SA-4.0
       _this = _this || this;
 
       if (deltaX == 0) {
-        _this.style.borders[1] = 0;
-        _this.style.borders[3] = 0;
+        _this.style.current.borders[1] = 0;
+        _this.style.current.borders[3] = 0;
       }
       else if (deltaX > 0) {
-        _this.style.borders[1] = 1;
-        _this.style.borders[3] = 0;
+        _this.style.current.borders[1] = 1;
+        _this.style.current.borders[3] = 0;
       }
       else if (deltaX < 0) {
-        _this.style.borders[1] = 0;
-        _this.style.borders[3] = 1;
+        _this.style.current.borders[1] = 0;
+        _this.style.current.borders[3] = 1;
       }
 
       if (deltaY == 0) {
-        _this.style.borders[0] = 0;
-        _this.style.borders[2] = 0;
+        _this.style.current.borders[0] = 0;
+        _this.style.current.borders[2] = 0;
       }
       else if (deltaY > 0) {
-        _this.style.borders[0] = 0;
-        _this.style.borders[2] = 1;
+        _this.style.current.borders[0] = 0;
+        _this.style.current.borders[2] = 1;
       }
       else if (deltaY < 0) {
-        _this.style.borders[0] = 1;
-        _this.style.borders[2] = 0;
+        _this.style.current.borders[0] = 1;
+        _this.style.current.borders[2] = 0;
       }
     },
     styleBlock: function(block, _this) {
@@ -486,7 +493,7 @@ License: CC-BY-SA-4.0
         block.style.height = size + 'px';
         block.style.border = _this.style.getBorder();
         block.style.borderWidth = _this.style.getBorderWidth();
-        block.style.boxSizing = _this.style.boxSizing;
+        block.style.boxSizing = _this.style.current.boxSizing;
       }
     },
     generateBlock: function(data, _config, _style) {
@@ -612,9 +619,39 @@ License: CC-BY-SA-4.0
   };
 
 
+  config.blocks.tracer = cycle.getCycler(this, 'mode');
+  config.blocks.tracer.addMode(
+    {
+      threshold: 10,
+      lifepan: 500
+    }
+  );
+
+  style.block.borderMode = cycle.getCycler(style.block, 'mode'),
+  style.block.borderMode.refresh = style.block.refreshStyle;
+  style.block.borderMode.addModes([
+    {
+      border: {
+        width: '3px',
+        thinWidth: 0
+      }
+    },
+    {
+      border: {
+        width: '4px',
+        thinWidth: '2px'
+      }
+    }
+  ]);
+  style.block.boxSizeMode = cycle.getCycler(style.block, 'mode'),
+  style.block.boxSizeMode.refresh = style.block.refreshStyle;
+  style.block.boxSizeMode.addModes([
+    {},
+    { boxSizing: 'content-box' }
+  ]);
+
 
   var block;
-
 
   // event handlers
   function windowResize(event) {
@@ -650,14 +687,13 @@ License: CC-BY-SA-4.0
       blocks.setPosition(mouse.x, mouse.y);
     }
     else if (event.key == 'b') {
-      style.block.setMode(style.block.mode + 1);
+      //style.block.setMode(style.block.mode + 1);
+      style.block.borderMode.nextMode();
       blocks.setPosition(mouse.x, mouse.y);
-      blocks.refresh();
     }
     else if (event.key == 'B') {
-      style.block.setModeB(style.block.modeB + 1);
+      style.block.boxSizeMode.nextMode();
       blocks.setPosition(mouse.x, mouse.y);
-      blocks.refresh();
     }
   }
   window.addEventListener('resize', windowResize);
