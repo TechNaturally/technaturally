@@ -44,7 +44,7 @@ License: CC-BY-SA-4.0
     block: {
       border: {
         width: '3px',
-        thinWidth: '2px',
+        thinWidth: 0,
         style: 'solid',
         color: '#AAA'
       },
@@ -366,6 +366,9 @@ License: CC-BY-SA-4.0
     }
   };
 
+  // random cache (used to store swap values)
+  var cache = {};
+
   // event handlers
   function windowResize(event) {
     var w = window.innerWidth || window.clientWidth;
@@ -379,15 +382,30 @@ License: CC-BY-SA-4.0
     block.setPosition(mouse.x, mouse.y);
     block.refreshBorders(mouse.delta.x, mouse.delta.y);
   }
-  function keyDown(event) {
+  function keyUp(event) {
     if (event.key == 's' || event.key == 'S') {
       config.block.snap = !config.block.snap;
       block.setPosition(mouse.x, mouse.y);
     }
+    else if (event.key == 'b' || event.key == 'B') {
+      // swap style.block.border.thinWidth between 0 and its cached value
+      if (style.block.border.thinWidth) {
+        cache['style.block.border.thinWidth'] = style.block.border.thinWidth;
+        style.block.border.thinWidth = 0;
+      }
+      else if (cache['style.block.border.thinWidth']){
+        style.block.border.thinWidth = cache['style.block.border.thinWidth'];
+      }
+      else {
+        // default value
+        style.block.border.thinWidth = '2px';
+      }
+      block.refresh();
+    }
   }
   window.addEventListener('resize', windowResize);
   window.addEventListener('mousemove', mouseMove);
-  window.addEventListener('keyup', keyDown);
+  window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
     // initialize grid with a container
     grid.setGrid( getEl('#background') );
