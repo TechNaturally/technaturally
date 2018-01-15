@@ -19,6 +19,9 @@ License: CC-BY-SA-4.0
     return document.querySelectorAll(selector);
   }
 
+  // cache (used to store swap values)
+  var cache = {};
+
   // some styles for the things
   var style = {
     // border helpers ;)
@@ -42,6 +45,17 @@ License: CC-BY-SA-4.0
       }
     },
     block: {
+      modes: [
+        { border: { width: '3px', thinWidth: 0 } },
+        { border: { width: '4px', thinWidth: '2px'} }
+      ],
+      modesB: [
+        {},
+        { boxSizing: 'content-box' }
+      ],
+      mode: 0,
+      modeB: 0,
+      boxSizing: 'border-box',
       border: {
         width: '3px',
         thinWidth: 0,
@@ -58,6 +72,126 @@ License: CC-BY-SA-4.0
       },
       getBorderWidth: function() {
         return style.Border.getBorderWidth(this.border, this.borders);
+      },
+      getOffsetX: function(snap) {
+        var offset = this.offset.x || 0;
+        if (snap) {
+          var borderWidth = parseInt(this.border.width) || 0;
+          var borderThinWidth = parseInt(this.border.thinWidth) || 0;
+          if (this.boxSizing == 'content-box') {
+            if (this.borders[3]) {
+              offset -= (borderWidth - 1);
+              if (borderThinWidth) {
+                offset -= borderThinWidth;
+              }
+            }
+          }
+        }
+        return offset;
+      },
+      getOffsetY: function(snap) {
+        var offset = this.offset.y || 0;
+        if (snap) {
+          var borderWidth = parseInt(this.border.width) || 0;
+          var borderThinWidth = parseInt(this.border.thinWidth) || 0;
+          if (this.boxSizing == 'content-box') {
+            if (this.borders[0]) {
+              offset -= (borderWidth - 1);
+              if (borderThinWidth) {
+                offset -= borderThinWidth;
+              }
+            }
+          }
+        }
+        return offset;
+      },
+      refreshStyle: function() {
+        if (this.mode >= 0 && this.mode < this.modes.length){
+          var mode = this.modes[this.mode];
+          if (mode.border) {
+            if (mode.border.width !== undefined) {
+              if (cache['style.block.border.width'] === undefined) {
+                cache['style.block.border.width'] = this.border.width;
+              }
+              this.border.width = mode.border.width;
+            }
+            else if (cache['style.block.border.width'] !== undefined) {
+              this.border.width = cache['style.block.border.width'];
+            }
+            if (mode.border.thinWidth !== undefined) {
+              if (cache['style.block.border.thinWidth'] === undefined) {
+                cache['style.block.border.thinWidth'] = this.border.thinWidth;
+              }
+              this.border.thinWidth = mode.border.thinWidth;
+            }
+            else if (cache['style.block.border.thinWidth'] !== undefined) {
+              this.border.thinWidth = cache['style.block.border.thinWidth'];
+            }
+          }
+        }
+      },
+      refreshStyleB: function() {
+        if (this.modeB >= 0 && this.modeB < this.modesB.length){
+          var modeB = this.modesB[this.modeB];
+          if (modeB.boxSizing) {
+            if (cache['style.block.boxSizing'] === undefined) {
+              cache['style.block.boxSizing'] = this.boxSizing;
+            }
+            this.boxSizing = modeB.boxSizing;
+          }
+          else if (cache['style.block.boxSizing'] !== undefined) {
+            this.boxSizing = cache['style.block.boxSizing'];
+          }
+          if (modeB.offset) {
+            if (cache['style.block.offset'] === undefined) {
+              cache['style.block.offset'] = this.offset;
+            }
+            this.offset = modeB.offset;
+          }
+          else if (cache['style.block.offset'] !== undefined) {
+            this.offset = cache['style.block.offset'];
+          }
+        }
+      },
+      setMode: function(mode, lock) {
+        if (mode >= this.modes.length) {
+          if (lock) {
+            mode = this.modes.length - 1;
+          }
+          else {
+            mode = 0;
+          }
+        }
+        else if (mode < 0) {
+          if (lock) {
+            mode = 0;
+          }
+          else {
+            mode = this.modes.length - 1;
+          }
+        }
+        this.mode = mode;
+        this.refreshStyle();
+      },
+      setModeB: function(modeB, lock) {
+        if (modeB >= this.modesB.length) {
+          if (lock) {
+            modeB = this.modesB.length - 1;
+          }
+          else {
+            modeB = 0;
+          }
+        }
+        else if (modeB < 0) {
+          if (lock) {
+            modeB = 0;
+          }
+          else {
+            modeB = this.modesB.length - 1;
+          }
+        }
+        this.modeB = modeB;
+        this.refreshStyleB();
       }
     }
   };
@@ -331,8 +465,8 @@ License: CC-BY-SA-4.0
           x = Math.min((win.width - size), Math.max(0, (x - size / 2.0)));
           y = Math.min((win.height - size), Math.max(0, (y - size / 2.0)));
         }
-        this.DOM.block.style.left = x + this.style.offset.x + 'px';
-        this.DOM.block.style.top = y + this.style.offset.y + 'px';
+        this.DOM.block.style.left = x + this.style.getOffsetX(this.config.snap) + 'px';
+        this.DOM.block.style.top = y + this.style.getOffsetY(this.config.snap) + 'px';
       }
     },
     styleBlock: function(block) {
@@ -342,6 +476,7 @@ License: CC-BY-SA-4.0
         block.style.height = size + 'px';
         block.style.border = this.style.getBorder();
         block.style.borderWidth = this.style.getBorderWidth();
+        block.style.boxSizing = this.style.boxSizing;
       }
     }
   };
@@ -375,9 +510,6 @@ License: CC-BY-SA-4.0
       this.height = window.innerHeight || window.clientHeight;
     }
   };
-
-  // random cache (used to store swap values)
-  var cache = {};
 
   // event handlers
   function windowResize(event) {
@@ -413,19 +545,14 @@ License: CC-BY-SA-4.0
       config.block.snap = !config.block.snap;
       block.setPosition(mouse.x, mouse.y);
     }
-    else if (event.key == 'b' || event.key == 'B') {
-      // swap style.block.border.thinWidth between 0 and its cached value
-      if (style.block.border.thinWidth) {
-        cache['style.block.border.thinWidth'] = style.block.border.thinWidth;
-        style.block.border.thinWidth = 0;
-      }
-      else if (cache['style.block.border.thinWidth']){
-        style.block.border.thinWidth = cache['style.block.border.thinWidth'];
-      }
-      else {
-        // default value
-        style.block.border.thinWidth = '2px';
-      }
+    else if (event.key == 'b') {
+      style.block.setMode(style.block.mode + 1);
+      block.setPosition(mouse.x, mouse.y);
+      block.refresh();
+    }
+    else if (event.key == 'B') {
+      style.block.setModeB(style.block.modeB + 1);
+      block.setPosition(mouse.x, mouse.y);
       block.refresh();
     }
   }
