@@ -99,14 +99,23 @@ a.special:hover, a.special:active, a.special:focus {
 
 header {
   color: #666; }
-  header img.logo {
+  header .name {
     display: block;
     margin: 0 auto;
+    height: 275px;
     width: 95%;
-    max-width: 480px; }
-  header .slogan {
+    max-width: 480px;
+    text-indent: -9999px;
+    background-image: url("/img/technaturally-logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center; }
+  header .headline {
     text-align: center;
     margin-top: 36px; }
+  header img.logo {
+    display: none;
+    visibility: hidden; }
 
 section p.contact {
   text-align: center;
@@ -114,7 +123,7 @@ section p.contact {
 
 footer {
   text-align: center; }
-  footer .slogan {
+  footer .headline {
     float: right; }
   footer .copyright {
     float: left; }
@@ -125,7 +134,7 @@ footer {
   #main > footer {
     padding: 25px 50px 10px; }
 
-  header .slogan {
+  header .headline {
     text-align: right; } }
 @media only screen and (max-width: 399px) {
   body {

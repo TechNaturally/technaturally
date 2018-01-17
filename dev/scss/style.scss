@@ -127,16 +127,25 @@ a.special {
 header {
 	color: #666;
 
-	img.logo {
+	.name {
 		display: block;
 		margin: 0 auto;
+		height: 275px;
 		width: 95%;
 		max-width: 480px;
+		text-indent: -9999px;
+		background-image: url('/img/technaturally-logo.png');
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: center;
 	}
-
-	.slogan {
+	.headline {
 		text-align: center;
 		margin-top: 36px;
+	}
+	img.logo {
+		display: none;
+		visibility: hidden;
 	}
 }
 
@@ -150,7 +159,7 @@ section {
 footer {
 	text-align: center;
 
-	.slogan {
+	.headline {
 		float: right;
 	}
 	.copyright {
@@ -168,7 +177,7 @@ footer {
 	}
 
 	header {
-		.slogan {
+		.headline {
 			text-align: right;
 		}
 	}
