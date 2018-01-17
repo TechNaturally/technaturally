@@ -62,9 +62,33 @@
       <img class="logo" src="img/technaturally-logo.png" />
     </header>
     <section>
-      <p class="contact">
-        <a href="mailto:info@technaturally.com?subject=Website Inquiry">info@technaturally.com</a>
-      </p>
+      <div class="contact content">
+        <h3>Quick Contact Form</h3>
+        <p class="instructions">* indicates required field</p>
+        <form>
+          <div class="field field-name">
+            <label for="contact-name">Name:</label>
+            <input id="contact-name" type="text" name="name" />
+          </div>
+          <div class="field field-email required">
+            <label for="contact-email">Email:</label>
+            <input id="contact-email" type="text" name="email" />
+          </div>
+          <div class="field field-message required">
+            <label for="contact-message">Message:</label>
+            <textarea id="contact-message" rows="3">Hi! I am interested in connecting with you.</textarea>
+          </div>
+          <div class="controls">
+            <button id="contact-submit" type="submit">Send It!</button>
+          </div>
+        </form>
+
+        <h4>Or send an email ...</h4>
+        <p class="email">
+          <a href="mailto:info@technaturally.com?subject=Website Inquiry">info@technaturally.com</a>
+        </p>
+      </div>
+      
     </section>
     <footer>&nbsp;
       <span class="slogan">to the roots.</span>
