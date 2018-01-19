@@ -39,10 +39,10 @@
 
   <link href="https://fonts.googleapis.com/css?family=Lato|Arima+Madurai|Oregano" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/reset.css?v=1.0">
-  <link rel="stylesheet" href="css/utils.css?v=1.0">
-  <link rel="stylesheet" href="css/typography.css?v=1.0">
-  <link rel="stylesheet" href="css/style.css?v=1.1">
+  <link rel="stylesheet" href="css/reset.css?v=1.0.0">
+  <link rel="stylesheet" href="css/utils.css?v=1.0.0">
+  <link rel="stylesheet" href="css/typography.css?v=1.0.0">
+  <link rel="stylesheet" href="css/style.css?v=1.2.0">
 
   <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
@@ -50,7 +50,9 @@
 </head>
 
 <body>
-  <script src="js/script.js?v=1.1"></script>
+  <script src="js/polyfills.js?v=1.0.0"></script>
+  <script src="js/ajax.js?v=1.0.0"></script>
+  <script src="js/script.js?v=1.2.0"></script>
   <div id="background">
     <div id="grid"></div>
     <div id="blocks"></div>
@@ -65,7 +67,7 @@
       <div class="contact content">
         <h3>Quick Contact Form</h3>
         <p class="instructions">* indicates required field</p>
-        <form>
+        <form action="/contact" method="POST">
           <div class="field field-name">
             <label for="contact-name">Name:</label>
             <input id="contact-name" type="text" name="name" />
@@ -76,7 +78,7 @@
           </div>
           <div class="field field-message required">
             <label for="contact-message">Message:</label>
-            <textarea id="contact-message" rows="3">Hi! I am interested in connecting with you.</textarea>
+            <textarea id="contact-message" name="message" rows="3">Hi! I am interested in connecting with you.</textarea>
           </div>
           <div class="controls">
             <button id="contact-submit" type="submit">Send It!</button>

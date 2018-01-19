@@ -12,11 +12,13 @@ License: CC-BY-SA-4.0
   var LOOPSANITY = 999; // used to break gnarly while loops
 
   // shortcuts
-  function getEl(selector) {
-    return document.querySelector(selector);
+  function getEl(selector, parent) {
+    parent = parent || document;
+    return parent.querySelector(selector);
   }
-  function getEls(selector) {
-    return document.querySelectorAll(selector);
+  function getEls(selector, parent) {
+    parent = parent || document;
+    return parent.querySelectorAll(selector);
   }
   function elHasClass(el, className) {
     return strHasWord(el.className, className);
@@ -764,6 +766,48 @@ License: CC-BY-SA-4.0
 
   var block;
 
+  var contact = {
+    init: function(selector) {
+      var contact = getEl(selector);
+      if (contact) {
+        var button = getEl('button[type="submit"]', contact);
+        if (button) {
+          button.addEventListener('click', this.submit, false);
+        }
+      }
+    },
+    submit: function(event) {
+      if (event && ajax) {
+        if (event.preventDefault) {
+          event.preventDefault();
+        }
+        if (event.target) {
+          var form = event.target.closest('form');
+          if (form) {
+            var data = {
+              name: form.name && form.name.value,
+              email: form.email && form.email.value,
+              message: form.message && form.message.value
+            };
+            
+            var formData = new FormData();
+            formData.append('name', data.name);
+            formData.append('email', data.email);
+            formData.append('message', data.message);
+
+            console.log('SUBMITTING FORM =>', data);
+            ajax('/contact',
+              function(response) {
+                console.log('FORM SUBMITTED =>', response)
+              },
+              formData);
+          }
+        }
+      }
+    }
+
+  };
+
   // event handlers
   function windowResize(event) {
     win.refresh();
@@ -815,6 +859,9 @@ License: CC-BY-SA-4.0
   window.addEventListener('touchmove', touchMove);
   window.addEventListener('keyup', keyUp);
   document.addEventListener('DOMContentLoaded', function(event) { 
+    contact.init('.contact > form');
+
+
     // initialize grid with a container
     grid.setGrid(getEl('#grid'));
     
