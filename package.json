@@ -5,7 +5,8 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "~4.16"
+    "express": "~4.16",
+    "nodemailer": "^4.4.1"
   },
   "author": "Pat Long",
   "date": "2018/01/14",
