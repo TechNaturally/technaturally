@@ -766,6 +766,44 @@ License: CC-BY-SA-4.0
 
   var block;
 
+  var Form = {
+    addToList: function (list, messages) {
+      if (list && messages) {
+        if (typeof messages === 'string') {
+          // simple message string
+          var newEntry = document.createElement('li');
+          newEntry.innerHTML = messages;
+          list.appendChild(newEntry);
+        }
+        else if (messages.constructor === Object) {
+          // message object (could contain additional/meta data)
+          if (messages.msg) {
+            var newEntry = document.createElement('li');
+            if (messages.type) {
+              newEntry.classList.add('message-'+messages.type);
+            }
+            newEntry.innerHTML = messages.msg;
+            list.appendChild(newEntry);
+          }
+        }
+        else if (Array.isArray(messages)) {
+          // array of messages
+          for (var i=0; i < messages.length; i++) {
+            this.addToList(list, messages[i]);
+          }
+        }
+      }
+    },
+    emptyList: function(list) {
+      if (list && typeof list.hasChildNodes === 'function') {
+        // remove any childNodes
+        while (list.hasChildNodes()) {
+          list.removeChild(list.childNodes[0]);
+        }
+      }
+    }
+  };
+
   var contact = {
     init: function(selector) {
       var contact = getEl(selector);
@@ -795,10 +833,99 @@ License: CC-BY-SA-4.0
             formData.append('email', data.email);
             formData.append('message', data.message);
 
-            console.log('SUBMITTING FORM =>', data);
+            // mark form as processing
+            form.classList.add('processing');
+
+            // disable the submit button while processing
+            var submit = getEl('button[type="submit"]', form);
+            if (submit) {
+              submit.disabled = true;
+            }
+
             ajax('/contact',
               function(response) {
-                console.log('FORM SUBMITTED =>', response)
+                res = JSON.parse(response);
+
+                // reset form classes
+                form.classList.remove('processing');
+                form.classList.remove('has-errors');
+                form.classList.remove('has-success');
+
+                // enable the submit button
+                if (submit) {
+                  submit.disabled = false;
+                }
+
+                // clean off field.has-errors classes
+                var errorFields = getEls('.field.has-errors', form);
+                for (var i=0; i < errorFields.length; i++) {
+                  errorFields[i].classList.remove('has-errors');
+                }
+
+                var errorLists = getEls('ul.errors', form);
+
+                // empty out all the error lists
+                for (var i=0; i < errorLists.length; i++) {
+                  Form.emptyList(errorLists[i]);
+                }
+
+                // empty out the form-messages list
+                var formMessages = getEl('ul.form-messages', form);
+                Form.emptyList(formMessages);
+
+                // process the result
+                if (res && res.constructor === Object) {
+                  if (res.success) {
+                    form.classList.add('has-success');
+                    if (res.messages && res.messages.length) {
+                      Form.addToList(formMessages, res.messages);
+                    }
+                  }
+
+                  // track if there are any errors in the form
+                  var hasErrors = false;
+
+                  // assign the errors into the DOM
+                  if (res.errors && res.errors.constructor === Object) {
+                    // general form errors
+                    var formErrorList = getEl('ul.form-errors', form);
+
+                    // add general form errors to the list
+                    if (formErrorList && res.errors['form'].length) {
+                      Form.addToList(formErrorList, res.errors['form']);
+                      hasErrors = true;
+                    }
+
+                    // loop through all error groups
+                    for (var errorFor in res.errors) {
+                      if (errorFor == 'form') {
+                        // already processed form errors first thing
+                        continue;
+                      }
+                      // check for a specific error list
+                      var errorList = getEl('ul.'+errorFor+'-errors', form);
+                      if (!errorList) {
+                        // no specific error list, use the general form errors
+                        errorList = formErrorList;
+                      }
+                      // add the errors to selected error list
+                      if (errorList && res.errors[errorFor].length) {
+                        Form.addToList(errorList, res.errors[errorFor]);
+                        hasErrors = true;
+                      }
+
+                      // apply has-errors class to the field element
+                      var errorField = getEl('.field.field-'+errorFor, form);
+                      if (errorField) {
+                        errorField.classList.add('has-errors');
+                      }
+                    }
+                    // apply has-errors class to form if there are errors
+                    if (hasErrors) {
+                      form.classList.add('has-errors');
+                    }
+                  }
+                }
               },
               formData);
           }

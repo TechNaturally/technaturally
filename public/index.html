@@ -68,17 +68,23 @@
         <h3>Quick Connect</h3>
         <p class="instructions">* indicates required field</p>
         <form action="/contact" method="POST">
+          <div class="spinner"></div>
+          <ul class="messages form-messages"></ul>
+          <ul class="messages errors form-errors"></ul>
           <div class="field field-name">
             <label for="contact-name">Name:</label>
             <input id="contact-name" type="text" name="name" />
+            <ul class="messages errors name-errors"></ul>
           </div>
           <div class="field field-email required">
             <label for="contact-email">Email:</label>
             <input id="contact-email" type="text" name="email" />
+            <ul class="messages errors email-errors"></ul>
           </div>
           <div class="field multiline field-message required">
             <label for="contact-message">Message:</label>
             <textarea id="contact-message" name="message" rows="3">Hi, let's connect!</textarea>
+            <ul class="messages errors message-errors"></ul>
           </div>
           <div class="controls">
             <button id="contact-submit" type="submit">Send It!</button>

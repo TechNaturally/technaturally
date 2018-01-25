@@ -33,10 +33,12 @@ p {
 blockquote {
   font-family: 'Oregano', cursive; }
 
-a, a:link, a:visited {
-  color: #656637; }
-a:hover, a:active, a:focus {
-  color: #76A04D; }
+a {
+  cursor: pointer; }
+  a, a:link, a:visited {
+    color: #656637; }
+  a:hover, a:active, a:focus {
+    color: #76A04D; }
 
 a.special, a.special:link, a.special:visited {
   color: #E15E35; }
@@ -70,6 +72,10 @@ form {
   form textarea {
     resize: none;
     padding: 6px 8px; }
+  form button {
+    cursor: pointer; }
+    form button:disabled {
+      cursor: not-allowed; }
   form .field {
     width: 100%;
     margin-bottom: 0.75em; }
@@ -81,6 +87,8 @@ form {
       margin-right: 2px; }
   form .controls {
     text-align: center; }
+  form.processing button[type="submit"]:disabled {
+    cursor: progress; }
 
 #background {
   z-index: 0; }

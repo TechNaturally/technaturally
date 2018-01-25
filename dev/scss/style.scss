@@ -44,6 +44,7 @@ blockquote {
 }
 
 a {
+	cursor: pointer;
 	&,
 	&:link,
 	&:visited {
@@ -101,6 +102,10 @@ form {
 		padding: 6px 8px;
 	}
 	button {
+		cursor: pointer;
+		&:disabled {
+			cursor: not-allowed;
+		}
 	}
 
 	.field {
@@ -123,6 +128,14 @@ form {
 	}
 	.controls {
 		text-align: center;
+	}
+
+	&.processing {
+		button[type="submit"] {
+			&:disabled {
+				cursor: progress;
+			}
+		}
 	}
 }
 
