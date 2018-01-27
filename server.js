@@ -1,5 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+var config = require('./config');
 
 var app = express();
 
@@ -13,6 +14,10 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res) {
   res.render('index');
 });
+
+function emailConfigured(config) {
+  return (config && config.email && config.email.host && config.email.user && config.email.pass) ? true : false;
+}
 
 function sendJSON(res, reply, errors, messages) {
   reply = reply || {};
@@ -98,6 +103,9 @@ app.post('/contact', function(req, res) {
 
 app.listen(port, function() {
   console.log('Technaturally.com running...');
+  if (!emailConfigured(config)) {
+    console.log('*** Warning: Email server does not appear to be configured.  (Contact form probably will not work.)');
+  }
 });
 
 var Email = {
@@ -142,14 +150,14 @@ var Email = {
     return (this.isValidContact(result) ? result : '');
   },
   assertTransporter: function() {
-    if (!this.transporter) {
+    if (!this.transporter && emailConfigured(config)) {
       this.transporter = nodemailer.createTransport({
-          host: '',
+          host: config.email.host,
           port: 587,
           secure: false, // true for 465, false for other ports
           auth: {
-              user: '',
-              pass: ''
+              user: config.email.user,
+              pass: config.email.pass
           }
       });
     }
@@ -163,10 +171,13 @@ var Email = {
       subject: subject,
       text: message
     };
-
     if (this.assertTransporter()) {
       this.transporter.sendMail(emailConfig, callback);
+      return true;
     }
-    return true;
+    else if (typeof callback == 'function') {
+      callback(true);
+    }
+    return false;
   }
 };
