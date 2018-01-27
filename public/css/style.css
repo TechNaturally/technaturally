@@ -46,6 +46,7 @@ a.special:hover, a.special:active, a.special:focus {
   color: #FF9740; }
 
 form {
+  position: relative;
   display: inline-block;
   line-height: 1.0em;
   margin-bottom: 25px; }
@@ -57,8 +58,8 @@ form {
   form textarea,
   form button {
     font-size: 0.9em;
-    background-color: #FFFFFF;
-    border: 1px solid #999;
+    background-color: #FFF;
+    border: 1px solid #888;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -ms-border-radius: 3px;
@@ -76,6 +77,47 @@ form {
     cursor: pointer; }
     form button:disabled {
       cursor: not-allowed; }
+  form .spinner {
+    text-align: center;
+    color: #6AC;
+    display: none;
+    margin-bottom: 1.0625em; }
+  form ul.form-messages {
+    color: #FFF;
+    font-size: 0.9em; }
+    form ul.form-messages li {
+      margin-bottom: 0.65em;
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 8px; }
+      form ul.form-messages li:first-child {
+        margin-top: -0.6em; }
+    form ul.form-messages.info,
+    form ul.form-messages li.message-info {
+      background-color: #6AC; }
+    form ul.form-messages.success,
+    form ul.form-messages li.message-success {
+      background-color: #3C6; }
+    form ul.form-messages.errors,
+    form ul.form-messages li.message-error {
+      background-color: #C30; }
+    form ul.form-messages.errors li {
+      display: none; }
+  form .field ul.messages {
+    font-size: 0.85em;
+    text-align: right;
+    padding-right: 10px; }
+    form .field ul.messages > li {
+      margin-top: 2px; }
+    form .field ul.messages.info,
+    form .field ul.messages li.message-info {
+      color: #6AC; }
+    form .field ul.messages.success,
+    form .field ul.messages li.message-success {
+      color: #3C6; }
+    form .field ul.messages.errors,
+    form .field ul.messages li.message-error {
+      color: #C30; }
   form .field {
     width: 100%;
     margin-bottom: 0.75em; }
@@ -85,8 +127,18 @@ form {
     form .field.required > label:before {
       content: '*';
       margin-right: 2px; }
+    form .field.has-errors {
+      color: #C30; }
+      form .field.has-errors input,
+      form .field.has-errors textarea {
+        border-color: #C30; }
   form .controls {
     text-align: center; }
+  form.processing .instructions,
+  form.processing .form-messages {
+    display: none; }
+  form.processing .spinner {
+    display: block; }
   form.processing button[type="submit"]:disabled {
     cursor: progress; }
 
@@ -171,21 +223,20 @@ header {
 section .content {
   background-color: #FFF;
   background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid #999;
+  border: 1px solid #888;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   border-radius: 3px; }
   section .content h3 {
-    margin-bottom: 0.5em; }
+    margin-bottom: 0.15em; }
   section .content > *:last-child {
     margin-bottom: 0; }
   section .content .instructions {
     text-align: right;
     font-style: italic;
     font-size: 0.85em;
-    color: #888;
-    margin-top: -8px; }
+    color: #888; }
 section .contact {
   text-align: center; }
   section .contact form .field-email {

@@ -767,11 +767,14 @@ License: CC-BY-SA-4.0
   var block;
 
   var Form = {
-    addToList: function (list, messages) {
+    addToList: function (list, messages, type) {
       if (list && messages) {
         if (typeof messages === 'string') {
           // simple message string
           var newEntry = document.createElement('li');
+          if (type) {
+            newEntry.classList.add('message-'+type);
+          }
           newEntry.innerHTML = messages;
           list.appendChild(newEntry);
         }
@@ -782,6 +785,9 @@ License: CC-BY-SA-4.0
             if (messages.type) {
               newEntry.classList.add('message-'+messages.type);
             }
+            else if (type) {
+              newEntry.classList.add('message-'+type);
+            }
             newEntry.innerHTML = messages.msg;
             list.appendChild(newEntry);
           }
@@ -789,7 +795,7 @@ License: CC-BY-SA-4.0
         else if (Array.isArray(messages)) {
           // array of messages
           for (var i=0; i < messages.length; i++) {
-            this.addToList(list, messages[i]);
+            this.addToList(list, messages[i], type);
           }
         }
       }
@@ -877,9 +883,10 @@ License: CC-BY-SA-4.0
                 if (res && res.constructor === Object) {
                   if (res.success) {
                     form.classList.add('has-success');
-                    if (res.messages && res.messages.length) {
-                      Form.addToList(formMessages, res.messages);
-                    }
+                  }
+
+                  if (res.messages && res.messages.length) {
+                    Form.addToList(formMessages, res.messages);
                   }
 
                   // track if there are any errors in the form
@@ -888,11 +895,11 @@ License: CC-BY-SA-4.0
                   // assign the errors into the DOM
                   if (res.errors && res.errors.constructor === Object) {
                     // general form errors
-                    var formErrorList = getEl('ul.form-errors', form);
+                    var formErrorList = getEl('ul.form-messages', form);
 
                     // add general form errors to the list
                     if (formErrorList && res.errors['form'].length) {
-                      Form.addToList(formErrorList, res.errors['form']);
+                      Form.addToList(formErrorList, res.errors['form'], 'error');
                       hasErrors = true;
                     }
 
@@ -910,7 +917,7 @@ License: CC-BY-SA-4.0
                       }
                       // add the errors to selected error list
                       if (errorList && res.errors[errorFor].length) {
-                        Form.addToList(errorList, res.errors[errorFor]);
+                        Form.addToList(errorList, res.errors[errorFor], 'error');
                         hasErrors = true;
                       }
 

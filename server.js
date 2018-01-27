@@ -74,11 +74,13 @@ app.post('/contact', function(req, res) {
 
     Email.send(sendFrom, sendTo, sendMessage, 'Quick Connect on Technaturally.com', function(error, info) {
       if (error) {
-        messages.push({msg: 'It didn\'t work. Are there gremlins in the pipes?', type: 'error'});
+        messages.push({msg: 'It didn\'t work.', type: 'error'});
+        messages.push({msg: 'Are there gremlins in the pipes?', type: 'error'});
         reply.success = false;
       }
       else {
-        messages.push({msg: 'Message sent!  We\'ll be in touch.  Thank you!', type: 'success'});
+        messages.push({msg: 'The connection is smooth.', type: 'success'});
+        messages.push({msg: 'Thank you!', type: 'success'});
         reply.success = true;
       }
       sendJSON(res, reply, errors, messages);
@@ -87,7 +89,7 @@ app.post('/contact', function(req, res) {
   }
   else {
     errors['form'] = (propCount(errors) == 1 ? 
-    'There\'s something wrong with the input.' :
+    'There is something wrong with the input.' :
     'There are some things wrong with the input.');
   }
 
